@@ -14,7 +14,7 @@ var (
 )
 
 // Carregar vai inicializar as variáveis de ambiente
-func Carregar() {
+func Load() {
 
 	err := godotenv.Load()
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 )
 
 func main () {
-	config.Carregar()
+	config.Load()
 
 	fmt.Printf("Serving at port %s...\n", config.Port)
 
