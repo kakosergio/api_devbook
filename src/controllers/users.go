@@ -1,10 +1,34 @@
 package controllers
 
-import "net/http"
+import (
+	"api/src/database"
+	"api/src/models"
+	repositories "api/src/repositories/user"
+	"encoding/json"
+	"io"
+	"log"
+	"net/http"
+)
 
 // CreateUser cria um usuário e insere no banco de dados
 func CreateUser(w http.ResponseWriter, r *http.Request){
+	requestBody, err := io.ReadAll(r.Body)
 
+	if err != nil {
+		log.Fatal(err)
+	}
+	var user models.User
+	if err = json.Unmarshal(requestBody, &user); err != nil {
+		log.Fatal(err)
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	repository := repositories.UsersRepository(db)
+	repository.Create(user)
 }
 
 // FindAllUsers busca no banco de dados todos os usuários cadastrados
