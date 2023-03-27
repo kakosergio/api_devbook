@@ -5,6 +5,7 @@ import (
 	"api/src/models"
 	repositories "api/src/repositories/user"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -28,7 +29,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 	}
 
 	repository := repositories.UsersRepository(db)
-	repository.Create(user)
+	id, err := repository.Create(user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Write([]byte(fmt.Sprintf("Usuário inserido. ID: %d", id)))
 }
 
 // FindAllUsers busca no banco de dados todos os usuários cadastrados

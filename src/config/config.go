@@ -24,7 +24,7 @@ func Load() {
 
 	StringConnDB = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
-		os.Getenv("API_PORT"),
+		os.Getenv("DB_PORT"),
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PWD"),
 		os.Getenv("DB_NAME"),
