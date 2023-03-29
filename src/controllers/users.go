@@ -3,15 +3,16 @@ package controllers
 import (
 	"api/src/database"
 	"api/src/models"
-	repositories "api/src/repositories/user"
+	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // CreateUser cria um usuário e insere no banco de dados
-func CreateUser(w http.ResponseWriter, r *http.Request){
+func Create(w http.ResponseWriter, r *http.Request){
 	requestBody, err := io.ReadAll(r.Body)
 
 	if err != nil {
@@ -46,22 +47,37 @@ func CreateUser(w http.ResponseWriter, r *http.Request){
 	responses.JSON(w, http.StatusCreated, user)
 }
 
-// FindAllUsers busca no banco de dados todos os usuários cadastrados
-func FindAllUsers(w http.ResponseWriter, r *http.Request){
+// FindAll busca no banco de dados todos os usuários cadastrados
+func FindAll(w http.ResponseWriter, r *http.Request){
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
 
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRepository(db)
+	users, err := repository.Find(nameOrNick)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, users)
 }
 
 // FindUserById busca um usuário pelo seu id
-func FindUserById(w http.ResponseWriter, r *http.Request){
+func FindById(w http.ResponseWriter, r *http.Request){
 
 }
 
 // UpdateUser atualiza as informações de um usuário pelo seu id
-func UpdateUser(w http.ResponseWriter, r *http.Request){
+func Update(w http.ResponseWriter, r *http.Request){
 
 }
 
 // DeleteUser apaga um usuário do banco de dados
-func DeleteUser(w http.ResponseWriter, r *http.Request){
+func Delete(w http.ResponseWriter, r *http.Request){
 
 }

@@ -3,6 +3,7 @@ package repositories
 import (
 	"api/src/models"
 	"database/sql"
+	"fmt"
 )
 
 // Struct que recebe apenas a conexão com o banco de dados para manipulação
@@ -31,4 +32,33 @@ func (repository user) Create(user models.User) (uint64, error) {
 
 	return id, err
 
+}
+
+// Find retorna os usuários com o nick ou nome requisitado
+func (repository user) Find(nameOrNick string) ([]models.User, error) {
+	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick) // %nameOrNick%
+
+	rows, err := repository.db.Query(
+		"SELECT id, name, nick, email, createdOn FROM users WHERE name LIKE $1 OR nick LIKE $2", nameOrNick, nameOrNick,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next(){
+		var user models.User
+		if err = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedOn,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }
