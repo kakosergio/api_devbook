@@ -100,7 +100,7 @@ func FindById(w http.ResponseWriter, r *http.Request){
 // UpdateUser atualiza as informações de um usuário pelo seu id
 func Update(w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
-	userId, err := strconv.ParseUint(params["userId"], 10 , 64)
+	userId, err := strconv.ParseUint(params["id"], 10 , 64)
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
