@@ -28,7 +28,7 @@ func Create(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	err = user.Prepare()
+	err = user.Prepare("signin")
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
@@ -99,6 +99,41 @@ func FindById(w http.ResponseWriter, r *http.Request){
 
 // UpdateUser atualiza as informações de um usuário pelo seu id
 func Update(w http.ResponseWriter, r *http.Request){
+	params := mux.Vars(r)
+	userId, err := strconv.ParseUint(params["userId"], 10 , 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+	requestBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var user models.User
+	if err = json.Unmarshal(requestBody, &user); err != nil{
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = user.Prepare("edit"); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRepository(db)
+	if err = repository.Update(userId, user); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusNoContent, nil)
 
 }
 

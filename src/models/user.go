@@ -17,15 +17,15 @@ type User struct {
 }
 
 // Prepare chamará os metodos para validar e formatar os dados do usuário recebido
-func (user *User) Prepare() error {
-	if err := user.validate(); err != nil {
+func (user *User) Prepare(stage string) error {
+	if err := user.validate(stage); err != nil {
 		return err
 	}
 	user.format()
 	return nil
 }
 
-func (user *User) validate() error {
+func (user *User) validate(stage string) error {
 	if user.Name == "" {
 		return errors.New("o nome é obrigatório e não pode estar em branco")
 	}
@@ -35,7 +35,7 @@ func (user *User) validate() error {
 	if user.Email == "" {
 		return errors.New("o e-mail é obrigatório e não pode estar em branco")
 	}
-	if user.Password == "" {
+	if stage == "signup" && user.Password == "" {
 		return errors.New("a senha é obrigatória e não pode estar em branco")
 	}
 	return nil
