@@ -11,7 +11,7 @@ import (
 func main () {
 	config.Load()
 
-	fmt.Printf("Serving at port %s...\n", config.Port)
+	fmt.Printf("Listening and Serving at port %s...\n", config.Port)
 
 	r := router.Gerar()
 

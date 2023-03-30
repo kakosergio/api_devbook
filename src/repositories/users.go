@@ -62,3 +62,27 @@ func (repository user) Find(nameOrNick string) ([]models.User, error) {
 	}
 	return users, nil
 }
+
+// FindById traz um usuário do banco de dados através de seu número de Id
+func (repository user) FindById(userId uint64) (models.User, error){
+	rows, err := repository.db.Query(
+		"SELECT id, name, nick, email, createdOn FROM users WHERE id = $1", userId,
+	)
+	if err != nil{
+		return models.User{}, err
+	}
+	defer rows.Close()
+	var user models.User
+	if rows.Next(){
+		if err = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedOn,
+		); err != nil {
+			return models.User{}, err
+		}
+	}
+	return user, nil
+}
