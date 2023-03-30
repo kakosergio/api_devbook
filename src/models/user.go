@@ -26,6 +26,7 @@ func (user *User) Prepare(stage string) error {
 }
 
 func (user *User) validate(stage string) error {
+	// inseriu o stage por causa do metodo de atualização do usuario, quando não for alterar a senha, só nome, nick e email
 	if user.Name == "" {
 		return errors.New("o nome é obrigatório e não pode estar em branco")
 	}
