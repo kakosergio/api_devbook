@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"api/src/database"
+	"api/src/helper"
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
@@ -28,7 +29,7 @@ func Create(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	err = user.Prepare("signin")
+	err = user.Prepare(helper.Signup)
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
@@ -117,7 +118,7 @@ func Update(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	if err = user.Prepare("edit"); err != nil {
+	if err = user.Prepare(helper.Signin); err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
