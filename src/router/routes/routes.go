@@ -18,6 +18,7 @@ type Route struct {
 func SetRoutes(r *mux.Router) *mux.Router{
 	// pega uma cópia das userRoutes
 	routes := userRoutes
+	routes = append(routes, loginRoutes)
 
 	// itera sobre a userRoutes, configurando cada uma das rotas
 	for _, route := range routes{
