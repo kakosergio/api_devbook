@@ -5,8 +5,8 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
+	"api/src/security"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -40,6 +40,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
-	fmt.Println(userStored)
 
+	if err := security.VerifyPassword(userStored.Password, user.Password); err != nil {
+		responses.Error(w, http.StatusUnauthorized,err)
+		return
+	}
+	w.Write([]byte("Tu tá logadin, congrats"))
 }
