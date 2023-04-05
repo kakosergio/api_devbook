@@ -11,9 +11,10 @@ import (
 var (
 	StringConnDB = ""
 	Port         = ""
+	SecretKey    []byte
 )
 
-// Carregar vai inicializar as variáveis de ambiente
+// Load vai inicializar as variáveis de ambiente
 func Load() {
 
 	err := godotenv.Load()
@@ -29,4 +30,6 @@ func Load() {
 		os.Getenv("DB_PWD"),
 		os.Getenv("DB_NAME"),
 	)
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }
