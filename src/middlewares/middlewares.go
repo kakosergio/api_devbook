@@ -1,7 +1,8 @@
 package middlewares
 
 import (
-	"fmt"
+	"api/src/auth"
+	"api/src/responses"
 	"log"
 	"net/http"
 	"time"
@@ -15,9 +16,13 @@ func Logger (next http.HandlerFunc) http.HandlerFunc{
 	}
 }
 
+// Authenticate autentica o usuário que está sendo logado
 func Authenticate (next http.HandlerFunc) http.HandlerFunc{
 	return func (w http.ResponseWriter, r *http.Request){
-		fmt.Println("Authenticating...")
+		if err := auth.ValidateToken(r); err != nil {
+			responses.Error(w, http.StatusUnauthorized, err)
+			return
+		}
 		next(w, r)
 	}
 }
