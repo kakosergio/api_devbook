@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"api/src/auth"
 	"api/src/database"
 	"api/src/helper"
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -106,6 +108,18 @@ func Update(w http.ResponseWriter, r *http.Request){
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
+
+	tokenUserId, err := auth.ExtractIdFromToken(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if userId != tokenUserId {
+		responses.Error(w, http.StatusForbidden, errors.New("you cant update another user"))
+		return
+	}
+
 	requestBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		responses.Error(w, http.StatusUnprocessableEntity, err)
