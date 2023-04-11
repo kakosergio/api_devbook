@@ -109,12 +109,14 @@ func Update(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	// Extrai do token que vem na requisição o ID do usuário para fins de comparação
 	tokenUserId, err := auth.ExtractIdFromToken(r)
 	if err != nil {
 		responses.Error(w, http.StatusUnauthorized, err)
 		return
 	}
 
+	// Compara o id do usuário vindo do token com o usuário a ser atualizado da requisição
 	if userId != tokenUserId {
 		responses.Error(w, http.StatusForbidden, errors.New("you cant update another user"))
 		return
@@ -159,6 +161,17 @@ func Delete(w http.ResponseWriter, r *http.Request){
 
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserId, err := auth.ExtractIdFromToken(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if tokenUserId != userId {
+		responses.Error(w, http.StatusForbidden, errors.New("you can't delete another user"))
 		return
 	}
 

@@ -22,18 +22,18 @@ var userRoutes = []Route{
 		URI: "/users/{id}",
 		Method: http.MethodGet,
 		Handler: users.FindById,
-		HasAuth: false,
+		HasAuth: true,
 	},
 	{
 		URI: "/users/{id}",
 		Method: http.MethodPut,
 		Handler: users.Update,
-		HasAuth: false,
+		HasAuth: true,
 	},
 	{
 		URI: "/users/{id}",
 		Method: http.MethodDelete,
 		Handler: users.Delete,
-		HasAuth: false,
+		HasAuth: true,
 	},
 }
