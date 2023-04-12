@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// CreateUser cria um usuário e insere no banco de dados
+// Create cria um usuário e insere no banco de dados
 func Create(w http.ResponseWriter, r *http.Request){
 	requestBody, err := io.ReadAll(r.Body)
 
@@ -73,7 +73,7 @@ func FindAll(w http.ResponseWriter, r *http.Request){
 	responses.JSON(w, http.StatusOK, users)
 }
 
-// FindUserById busca um usuário pelo seu id
+// FindById busca um usuário pelo seu id
 func FindById(w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 
@@ -100,7 +100,7 @@ func FindById(w http.ResponseWriter, r *http.Request){
 
 }
 
-// UpdateUser atualiza as informações de um usuário pelo seu id
+// Update atualiza as informações de um usuário pelo seu id
 func Update(w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 	userId, err := strconv.ParseUint(params["id"], 10 , 64)
@@ -154,7 +154,7 @@ func Update(w http.ResponseWriter, r *http.Request){
 
 }
 
-// DeleteUser apaga um usuário do banco de dados
+// Delete apaga um usuário do banco de dados
 func Delete(w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 	userId, err := strconv.ParseUint(params["id"], 10, 64)
@@ -191,6 +191,7 @@ func Delete(w http.ResponseWriter, r *http.Request){
 
 }
 
+// Follow permite um usuário seguir outro usuário
 func Follow (w http.ResponseWriter, r *http.Request){
 	followerID, err := auth.ExtractIdFromToken(r)
 	if err != nil {
@@ -220,6 +221,43 @@ func Follow (w http.ResponseWriter, r *http.Request){
 
 	repository := repositories.UsersRepository(db)
 	if err := repository.Follow(userID, followerID); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+// Unfollow permite o usuário deixar de seguir outro usuário
+func Unfollow (w http.ResponseWriter, r *http.Request){
+	followerID, err := auth.ExtractIdFromToken(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	userID, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if followerID == userID {
+		responses.Error(w, http.StatusForbidden, errors.New("you can't unfollow yourself"))
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.UsersRepository(db)
+	if err := repository.Unfollow(userID, followerID); err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
