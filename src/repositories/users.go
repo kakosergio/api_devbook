@@ -162,3 +162,32 @@ func (repository user) Unfollow(userID, followerID uint64) error{
 	}
 	return nil
 }
+
+// FindFollowers busca todos os seguidores de determinado usuário
+func (repository user) FindFollowers (userID uint64) ([]models.User, error){
+	// Selecionar id, nome, nick, email, criadoEm da tabela de usuários em combinação com a tabela de seguidores onde userID é igual a followerID
+	rows, err := repository.db.Query(`SELECT u.id, u.name, u.nick, u.email, u.createdOn 
+	FROM users u INNER JOIN followers s ON u.id = s.follower_id WHERE s.user_id = $1`, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []models.User
+	for rows.Next(){
+		var user models.User
+
+		if err = rows.Scan(
+			&user.Id,
+			&user.Name,
+			&user.Nick,
+			&user.Email,
+			&user.CreatedOn,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
