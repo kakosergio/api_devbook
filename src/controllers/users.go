@@ -291,6 +291,7 @@ func FindFollowers (w http.ResponseWriter, r *http.Request){
 	responses.JSON(w, http.StatusOK, followers)
 }
 
+// FindFollowing busca os usuários que um usuário segue
 func FindFollowing (w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 	userID, err := strconv.ParseUint(params["id"], 10, 64)

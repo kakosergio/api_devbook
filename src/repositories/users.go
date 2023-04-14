@@ -192,9 +192,8 @@ func (repository user) FindFollowers (userID uint64) ([]models.User, error){
 	return users, nil
 }
 
-// FindFollowing busca todos os seguidores de determinado usuário
+// FindFollowing busca todos os usuários que determinado usuário segue
 func (repository user) FindFollowing (userID uint64) ([]models.User, error){
-	// Selecionar id, nome, nick, email, criadoEm da tabela de usuários em combinação com a tabela de seguidores onde userID é igual a followerID
 	rows, err := repository.db.Query(`SELECT u.id, u.name, u.nick, u.email, u.createdOn 
 	FROM users u INNER JOIN followers s ON u.id = s.user_id WHERE s.follower_id = $1`, userID)
 	if err != nil {
