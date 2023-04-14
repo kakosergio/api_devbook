@@ -54,4 +54,10 @@ var userRoutes = []Route{
 		Handler: users.FindFollowers,
 		HasAuth: true,
 	},
+	{
+		URI: "/users/{id}/following",
+		Method: http.MethodGet,
+		Handler: users.FindFollowing,
+		HasAuth: true,
+	},
 }
