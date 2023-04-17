@@ -238,6 +238,7 @@ func (repository user) FindPassword (userID uint64) (string, error){
 	return user.Password, err
 }
 
+// UpdatePassword atualiza a senha do usuário no banco de dados
 func (repository user) UpdatePassword (userID uint64, password string) error{
 	statement, err := repository.db.Prepare("UPDATE users SET password = $1 WHERE id = $2")
 	if err != nil {
