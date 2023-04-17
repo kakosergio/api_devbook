@@ -219,3 +219,34 @@ func (repository user) FindFollowing (userID uint64) ([]models.User, error){
 	}
 	return users, nil
 }
+
+// FindPassword busca a senha salva do usuario no banco de dados para fins de comparação para atualização
+func (repository user) FindPassword (userID uint64) (string, error){
+	rows, err := repository.db.Query("SELECT password FROM users WHERE id = $1", userID)
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	var user models.User
+	if rows.Next(){
+		if err = rows.Scan(&user.Password); err != nil {
+			return "", err
+		}
+
+	}
+	return user.Password, err
+}
+
+func (repository user) UpdatePassword (userID uint64, password string) error{
+	statement, err := repository.db.Prepare("UPDATE users SET password = $1 WHERE id = $2")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(password, userID); err != nil {
+		return err
+	}
+	return nil
+}
