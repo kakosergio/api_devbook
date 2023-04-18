@@ -4,6 +4,7 @@ CREATE DATABASE IF NOT EXISTS devbook;
 USE devbook; /* no postgres é \c devbook */
 
 /* Aqui é PostgreSQL */
+DROP TABLE IF EXISTS publications;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS followers;
 
@@ -33,3 +34,21 @@ CREATE TABLE followers(
 
     PRIMARY KEY (user_id, follower_id)
 );
+
+CREATE TABLE publications(
+    id serial primary key,
+    title varchar(50) not null,
+    body varchar(400) not null,
+
+    author_id int not null,
+    FOREIGN KEY (author_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE,
+
+    likes int default 0,
+    createdOn TIMESTAMP default CURRENT_TIMESTAMP
+);
+
+GRANT ALL ON ALL TABLES IN SCHEMA public TO golang;
+GRANT ALL PRIVILEGES ON publications TO golang;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO golang;
