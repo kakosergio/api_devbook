@@ -20,6 +20,7 @@ func SetRoutes(r *mux.Router) *mux.Router {
 	// pega uma cópia das userRoutes
 	routes := userRoutes
 	routes = append(routes, loginRoutes)
+	routes = append(routes, publicationsRoutes...)
 
 	// itera sobre a userRoutes, configurando cada uma das rotas
 	for _, route := range routes {
