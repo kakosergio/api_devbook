@@ -9,6 +9,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // CreatePub cria publicação nova
@@ -63,6 +66,28 @@ func FindPubs(w http.ResponseWriter, r *http.Request){
 
 // FindPub encontra uma publicação em específico
 func FindPub(w http.ResponseWriter, r *http.Request){
+	params := mux.Vars(r)
+	pubID, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PublicationsRepository(db)
+	publication, err := repository.FindById(pubID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, publication)
 
 }
 
