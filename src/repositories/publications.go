@@ -17,7 +17,7 @@ func PublicationsRepository(db *sql.DB) *Publications {
 
 // Cria uma nova publicação no banco de dados, retornando seu ID
 func (repository Publications) Create(pub models.Publication) (uint64, error){
-	statement, err := repository.db.Prepare("INSERT INTO publications (title, body, author_id) VALUES ($1, $2, $3), RETURNING id")
+	statement, err := repository.db.Prepare("INSERT INTO publications (title, body, author_id) VALUES ($1, $2, $3) RETURNING id")
 
 	if err != nil {
 		return 0, err
