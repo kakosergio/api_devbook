@@ -207,7 +207,7 @@ func DeletePub(w http.ResponseWriter, r *http.Request){
 	}
 
 	if publicationSavedinDb.AuthorId != userID {
-		responses.Error(w, http.StatusForbidden, errors.New("you can't update another user's publication"))
+		responses.Error(w, http.StatusForbidden, errors.New("you can't delete another user's publication"))
 		return
 	}
 

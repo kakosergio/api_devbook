@@ -59,6 +59,7 @@ func (repository Publications) FindById(id uint64) (models.Publication, error){
 	return publication, nil
 }
 
+// FindPubs busca publicações dos usuários seguidos por quem a requisitou
 func (repository Publications) FindPubs(userId uint64) ([]models.Publication, error){
 	rows, err := repository.db.Query(
 		`SELECT DISTINCT p.*, u.nick FROM publications p 
@@ -91,6 +92,7 @@ func (repository Publications) FindPubs(userId uint64) ([]models.Publication, er
 	return publications, nil
 }
 
+// Update modifica uma publicação do usuário
 func (repository Publications) Update(pubID uint64, publication models.Publication) error {
 	statement, err := repository.db.Prepare("UPDATE publications SET title = $1, body = $2 WHERE id = $3")
 	if err != nil {
@@ -105,6 +107,7 @@ func (repository Publications) Update(pubID uint64, publication models.Publicati
 	return nil
 }
 
+// Delete apaga uma publicação de um determinado usuário
 func (repository Publications) Delete(pubID uint64) error {
 	statement, err := repository.db.Prepare("DELETE FROM publications WHERE id = $1")
 	if err != nil {
