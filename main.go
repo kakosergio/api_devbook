@@ -24,7 +24,7 @@ import (
 func main() {
 	config.Load()
 
-	fmt.Printf("Listening and Serving at port %s...\n", config.Port)
+	fmt.Printf("\nListening and Serving at port %s...\n\n", config.Port)
 
 	r := router.Gerar()
 

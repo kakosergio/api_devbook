@@ -7,6 +7,7 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -61,6 +62,29 @@ func CreatePub(w http.ResponseWriter, r *http.Request){
 
 // FindPubs encontra publicações dos seguidos pelo usuário, em seu feed
 func FindPubs(w http.ResponseWriter, r *http.Request){
+	userID, err := auth.ExtractIdFromToken(r)
+
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	repository := repositories.PublicationsRepository(db)
+	var publications []models.Publication
+	publications, err = repository.FindPubs(userID)
+
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, publications)
 
 }
 
@@ -93,10 +117,104 @@ func FindPub(w http.ResponseWriter, r *http.Request){
 
 // UpdatePub atualiza uma publicação existente
 func UpdatePub(w http.ResponseWriter, r *http.Request){
+	userID, err := auth.ExtractIdFromToken(r)
+
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	pubID, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PublicationsRepository(db)
+	publicationSavedinDb, err := repository.FindById(pubID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if publicationSavedinDb.AuthorId != userID {
+		responses.Error(w, http.StatusForbidden, errors.New("you can't update another user's publication"))
+		return
+	}
+
+	requestBody, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var pub models.Publication
+	if err = json.Unmarshal(requestBody, &pub); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = pub.Prepare(); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = repository.Update(pubID, pub); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 
 }
 
 // DeletePub apaga uma publicação
 func DeletePub(w http.ResponseWriter, r *http.Request){
+	userID, err := auth.ExtractIdFromToken(r)
 
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	params := mux.Vars(r)
+	pubID, err := strconv.ParseUint(params["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PublicationsRepository(db)
+	publicationSavedinDb, err := repository.FindById(pubID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if publicationSavedinDb.AuthorId != userID {
+		responses.Error(w, http.StatusForbidden, errors.New("you can't update another user's publication"))
+		return
+	}
+
+	if err = repository.Delete(pubID); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }

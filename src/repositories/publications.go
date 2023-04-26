@@ -58,3 +58,63 @@ func (repository Publications) FindById(id uint64) (models.Publication, error){
 	}
 	return publication, nil
 }
+
+func (repository Publications) FindPubs(userId uint64) ([]models.Publication, error){
+	rows, err := repository.db.Query(
+		`SELECT DISTINCT p.*, u.nick FROM publications p 
+		INNER JOIN users u ON u.id = p.author_id 
+		INNER JOIN followers f ON p.author_id = f.user_id 
+		WHERE u.id = $1 OR f.follower_id = $2 ORDER BY 1 DESC`, userId, userId)
+
+	if err != nil {
+		return []models.Publication{}, err
+	}
+	defer rows.Close()
+
+	var publications []models.Publication
+
+	for rows.Next(){
+		var publication models.Publication
+		if err = rows.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Body,
+			&publication.AuthorId,
+			&publication.Likes,
+			&publication.CreatedOn,
+			&publication.AuthorNick,
+		); err != nil {
+			return []models.Publication{}, err
+		}
+		publications = append(publications, publication)
+	}
+	return publications, nil
+}
+
+func (repository Publications) Update(pubID uint64, publication models.Publication) error {
+	statement, err := repository.db.Prepare("UPDATE publications SET title = $1, body = $2 WHERE id = $3")
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	if _, err = statement.Exec(publication.Title, publication.Body, pubID); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repository Publications) Delete(pubID uint64) error {
+	statement, err := repository.db.Prepare("DELETE FROM publications WHERE id = $1")
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	if _, err = statement.Exec(pubID); err != nil {
+		return err
+	}
+	return nil
+}

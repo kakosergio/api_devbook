@@ -5,13 +5,14 @@ import (
 	"api/src/responses"
 	"log"
 	"net/http"
-
+	"time"
 )
 
 // statusRecorder cria um struct que vai guardar as informações do responsewriter para passar para o próximo handler e gravar o statuscode
 type statusRecorder struct {
 	http.ResponseWriter
 	statusCode int
+	startTime time.Time
 }
 
 // WriteHeader é uma função auxiliar que grava o statuscode no header do responsewriter. Ela implementa a interface http.ResponseWriter
@@ -25,12 +26,14 @@ func (recorder *statusRecorder) WriteHeader (code int){
 func Logger (next http.HandlerFunc) http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request){
 		// Cria um statusCode padrão para caso o WriteHeader não for chamado.
-		rec := statusRecorder{w, 200}
+		rec := statusRecorder{w, 200, time.Now()}
 
 		// Passa o controle para o próximo handler
 		next.ServeHTTP(&rec, r)
+		end := time.Now()
+		elapsed := end.Sub(rec.startTime)
 		// Printa na tela o log com as informaçõe obtidas da request e do writer
-		log.Printf("%s%s [%d] %s", r.Host, r.URL.Path, rec.statusCode, r.Method)
+		log.Printf("%dms %s [%d] %s", elapsed.Milliseconds(), r.Method, rec.statusCode, r.URL.Path)
 	}
 }
 
