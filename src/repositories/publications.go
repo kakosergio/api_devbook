@@ -16,7 +16,7 @@ func PublicationsRepository(db *sql.DB) *Publications {
 }
 
 // Cria uma nova publicação no banco de dados, retornando seu ID
-func (repository Publications) Create(pub models.Publication) (uint64, error){
+func (repository Publications) Create(pub models.Publication) (uint64, error) {
 	statement, err := repository.db.Prepare("INSERT INTO publications (title, body, author_id) VALUES ($1, $2, $3) RETURNING id")
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (repository Publications) Create(pub models.Publication) (uint64, error){
 }
 
 // FindById devolve uma publicação através de seu ID
-func (repository Publications) FindById(id uint64) (models.Publication, error){
+func (repository Publications) FindById(id uint64) (models.Publication, error) {
 	rows, err := repository.db.Query("SELECT p.*, u.nick FROM publications p INNER JOIN users u ON u.id = p.author_id WHERE p.id = $1", id)
 
 	if err != nil {
@@ -43,7 +43,7 @@ func (repository Publications) FindById(id uint64) (models.Publication, error){
 	defer rows.Close()
 
 	var publication models.Publication
-	if rows.Next(){
+	if rows.Next() {
 		if err = rows.Scan(
 			&publication.ID,
 			&publication.Title,
@@ -60,7 +60,7 @@ func (repository Publications) FindById(id uint64) (models.Publication, error){
 }
 
 // FindPubs busca publicações dos usuários seguidos por quem a requisitou
-func (repository Publications) FindPubs(userId uint64) ([]models.Publication, error){
+func (repository Publications) FindPubs(userId uint64) ([]models.Publication, error) {
 	rows, err := repository.db.Query(
 		`SELECT DISTINCT p.*, u.nick FROM publications p 
 		INNER JOIN users u ON u.id = p.author_id 
@@ -74,7 +74,7 @@ func (repository Publications) FindPubs(userId uint64) ([]models.Publication, er
 
 	var publications []models.Publication
 
-	for rows.Next(){
+	for rows.Next() {
 		var publication models.Publication
 		if err = rows.Scan(
 			&publication.ID,
@@ -120,4 +120,34 @@ func (repository Publications) Delete(pubID uint64) error {
 		return err
 	}
 	return nil
+}
+
+// FindByUser traz todas as publicações de um usuário específico
+func (repository Publications) FindByUser(userId uint64) ([]models.Publication, error) {
+	rows, err := repository.db.Query(`SELECT p.*, u.nick FROM publications p JOIN users u ON u.id = p.author_id WHERE p.author_id = $1`, userId)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var publications []models.Publication
+
+	for rows.Next() {
+		var publication models.Publication
+
+		if err = rows.Scan(
+			&publication.ID,
+			&publication.Title,
+			&publication.Body,
+			&publication.AuthorId,
+			&publication.Likes,
+			&publication.CreatedOn,
+			&publication.AuthorNick,
+		); err != nil {
+			return nil, err
+		}
+		publications = append(publications, publication)
+	}
+	return publications, nil
 }

@@ -25,7 +25,7 @@ func (recorder *statusRecorder) WriteHeader (code int){
 // Logger escreve informações da requisição no terminal
 func Logger (next http.HandlerFunc) http.HandlerFunc{
 	return func(w http.ResponseWriter, r *http.Request){
-		// Cria um statusCode padrão para caso o WriteHeader não for chamado.
+		// Cria um statusCode padrão para o caso de não ser chamado o WriteHeader.
 		rec := statusRecorder{w, 200, time.Now()}
 
 		// Passa o controle para o próximo handler
@@ -33,7 +33,7 @@ func Logger (next http.HandlerFunc) http.HandlerFunc{
 		end := time.Now()
 		elapsed := end.Sub(rec.startTime)
 		// Printa na tela o log com as informaçõe obtidas da request e do writer
-		log.Printf("%dms %s [%d] %s", elapsed.Milliseconds(), r.Method, rec.statusCode, r.URL.Path)
+		log.Printf("%5dms %6s [%d] %s", elapsed.Milliseconds(), r.Method, rec.statusCode, r.URL.Path)
 	}
 }
 
