@@ -48,4 +48,10 @@ var publicationsRoutes = []Route{
 		Handler: controllers.LikePub,
 		HasAuth: true,
 	},
+	{
+		URI: "/pub/{id}/unlike",
+		Method: http.MethodPost,
+		Handler: controllers.UnlikePub,
+		HasAuth: true,
+	},
 }

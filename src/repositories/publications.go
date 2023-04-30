@@ -166,3 +166,24 @@ func (repository Publications) Like (pubId uint64) error {
 	}
 	return nil
 }
+
+// Unlike descurte uma publicação de um determinado usuário
+func (repository Publications) Unlike (pubId uint64) error {
+	statement, err := repository.db.Prepare(`
+	UPDATE publications SET likes = 
+		CASE 
+			WHEN likes > 0 THEN likes - 1 
+			ELSE likes 
+		END 
+	WHERE id = $1`)
+
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(pubId); err != nil {
+		return err
+	}
+	return nil
+}

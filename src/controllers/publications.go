@@ -246,6 +246,7 @@ func FindPubByUser (w http.ResponseWriter, r *http.Request){
 	responses.JSON(w, http.StatusOK, publications)
 }
 
+// LikePub curte uma publicação de um determinado usuário
 func LikePub (w http.ResponseWriter, r *http.Request){
 	params := mux.Vars(r)
 	pubId, err := strconv.ParseUint(params["id"], 10, 64)
@@ -264,6 +265,32 @@ func LikePub (w http.ResponseWriter, r *http.Request){
 
 	repository := repositories.PublicationsRepository(db)
 	if err = repository.Like(pubId); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
+
+// UnlikePub descurte uma determinada publicação de um usuário
+func UnlikePub (w http.ResponseWriter, r *http.Request){
+	params := mux.Vars(r)
+	pubId, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repositories.PublicationsRepository(db)
+	if err = repository.Unlike(pubId); err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
