@@ -42,4 +42,10 @@ var publicationsRoutes = []Route{
 		Handler: controllers.FindPubByUser,
 		HasAuth: true,
 	},
+	{
+		URI: "/pub/{id}/like",
+		Method: http.MethodPost,
+		Handler: controllers.LikePub,
+		HasAuth: true,
+	},
 }

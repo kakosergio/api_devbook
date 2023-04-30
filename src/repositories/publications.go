@@ -151,3 +151,18 @@ func (repository Publications) FindByUser(userId uint64) ([]models.Publication, 
 	}
 	return publications, nil
 }
+
+// Like curte uma publicação de um determinado usuário
+func (repository Publications) Like (pubId uint64) error {
+	statement, err := repository.db.Prepare("UPDATE publications SET likes = likes + 1 WHERE id = $1")
+
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(pubId); err != nil {
+		return err
+	}
+	return nil
+}
