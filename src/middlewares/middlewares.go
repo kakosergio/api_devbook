@@ -33,7 +33,7 @@ func Logger (next http.HandlerFunc) http.HandlerFunc{
 		end := time.Now()
 		elapsed := end.Sub(rec.startTime)
 		// Printa na tela o log com as informaçõe obtidas da request e do writer
-		log.Printf("%5dms %6s [%d] %s", elapsed.Milliseconds(), r.Method, rec.statusCode, r.URL.Path)
+		log.Printf(" %5dms %6s [%d] %s", elapsed.Milliseconds(), r.Method, rec.statusCode, r.URL.Path)
 	}
 }
 
